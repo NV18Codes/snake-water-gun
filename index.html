@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake - Water - Gun</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .button {
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .choice-button img {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .choice-button:hover img {
+            transform: scale(1.1);
+        }
+
+        .choice-button {
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .choice-button:hover {
+            transform: scale(1.05);
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        .img-container img {
+            width: 120px;
+            height: 120px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .img-container img:hover {
+            transform: scale(1.1);
+        }
+
+        .game-container {
+            background: linear-gradient(to right, #93b7ec, #eaecef);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .name-card {
+            background-color: rgba(59, 177, 245, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        .warning-card {
+            display: none;
+            padding: 20px;
+            background-color: rgba(241, 7, 7, 0.9);
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            animation: warningAnimation 2s ease-in-out forwards;
+        }
+
+        @keyframes warningAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .celebration-card {
+            display: none;
+            padding: 20px;
+            background-color: rgba(168, 217, 123, 0.9);
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            animation: celebrate 2s ease-in-out forwards;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .game-container h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .game-container p {
+            font-size: 18px;
+            color: white;
+        }
+
+        .game-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            width: 50%;
+            color: black;
+        }
+
+        .game-container button {
+            font-size: 20px;
+            padding: 15px 40px;
+            background-color: #86cfe1;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .game-container button:hover {
+            background-color: #87d6e8;
+        }
+
+        .input-text {
+            color: #333;
+        }
+
+        .header-text {
+            color: rgb(14, 13, 13);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-r from-blue-500 to-green-500 text-white font-serif">
+
+    <div class="container mx-auto py-12">
+        <!-- Name Input Section -->
+        <div id="name-card" class="name-card text-center">
+            <h1 class="header-text text-3xl font-bold mb-4">Enter Your Name</h1>
+            <input id="player-name" type="text" placeholder="Your Name" class="border p-2 rounded-md mb-4 w-2/3 text-black">
+            <button id="start-name-btn" class="button">Start Game</button>
+        </div>
+
+        <!-- Game Setup Section -->
+        <div id="rounds-container" class="hidden text-center game-container">
+            <h1 class="header-text text-4xl font-bold mb-6">Welcome to Snake - Water - Gun</h1>
+            <p class="text-lg mb-4">Select the number of rounds and start the game!</p>
+            <input id="rounds" type="number" placeholder="Enter number of rounds" class="border p-2 rounded-md mb-4">
+            <button id="start-btn" class="button mt-4">Start Game</button>
+        </div>
+
+        <!-- Warning Section -->
+        <div id="warning-card" class="warning-card">
+            <p>The number of rounds must be at least 3!</p>
+        </div>
+
+        <!-- Game Section -->
+        <div id="game" class="hidden game-container">
+            <h2 class="text-2xl font-semibold mb-6">Round: <span id="round-number">1</span></h2>
+            <h3 class="text-xl mb-4">Your Score: <span id="player-score">0</span> | Computer Score: <span
+                    id="computer-score">0</span></h3>
+
+            <div class="flex justify-center space-x-8 mb-8">
+                <!-- Player Choices -->
+                <div id="player-choices" class="flex space-x-4">
+                    <button id="snake" class="choice-button">
+                        <img src="https://cdn.pixabay.com/photo/2013/07/13/13/42/snake-161424_1280.png" alt="Snake">
+                        Snake
+                    </button>
+                    <button id="water" class="choice-button">
+                        <img src="https://cdn.pixabay.com/photo/2021/09/30/00/47/water-6668699_1280.png" alt="Water">
+                        Water
+                    </button>
+                    <button id="gun" class="choice-button">
+                        <img src="https://cdn.pixabay.com/photo/2014/12/03/17/50/pistol-555656_1280.png" alt="Gun">
+                        Gun
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-container text-center mt-8">
+                <h3 class="text-xl">Result:</h3>
+                <span id="result" class="text-lg">Make your choice!</span>
+            </div>
+
+            <div class="flex justify-center space-x-8 mt-8 img-container">
+                <!-- Player's choice -->
+                <div>
+                    <h4 class="text-lg">Your choice:</h4>
+                    <img id="player-img" src="https://via.placeholder.com/100" alt="Player's choice">
+                </div>
+
+                <!-- Computer's choice -->
+                <div>
+                    <h4 class="text-lg">Computer's choice:</h4>
+                    <img id="computer-img" src="https://via.placeholder.com/100" alt="Computer's choice">
+                </div>
+            </div>
+        </div>
+
+        <!-- Celebration Card -->
+        <div id="celebration-card" class="celebration-card">
+            <h2 id="celebration-text"></h2>
+            <p>Click below for a rematch!</p>
+            <button id="rematch-btn" class="button">Play Again</button>
+            <button id="new-game-btn" class="button mt-4">New Game</button>
+        </div>
+    </div>
+
+    <script>
+        const options = ['s', 'w', 'g'];
+        const images = {
+            s: "https://cdn.pixabay.com/photo/2013/07/13/13/42/snake-161424_1280.png", // Snake
+            w: "https://cdn.pixabay.com/photo/2021/09/30/00/47/water-6668699_1280.png", // Water
+            g: "https://cdn.pixabay.com/photo/2014/12/03/17/50/pistol-555656_1280.png"  // Gun
+        };
+
+        let totalRounds = 0;
+        let currentRound = 1;
+        let playerScore = 0;
+        let computerScore = 0;
+        let playerName = '';
+
+        // Start Game Button Event
+        document.getElementById('start-name-btn').addEventListener('click', startNameEntry);
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('rematch-btn').addEventListener('click', rematch);
+        document.getElementById('new-game-btn').addEventListener('click', newGame);
+
+        // Player's choice buttons
+        document.getElementById('snake').addEventListener('click', () => rollChoices('s'));
+        document.getElementById('water').addEventListener('click', () => rollChoices('w'));
+        document.getElementById('gun').addEventListener('click', () => rollChoices('g'));
+
+        // Start Game (Name Entry)
+        function startNameEntry() {
+            playerName = document.getElementById('player-name').value;
+            if (!playerName) {
+                alert("Please enter your name!");
+                return;
+            }
+
+            document.getElementById('rounds-container').querySelector('h1').textContent = `Welcome to Snake - Water - Gun, ${playerName}!`;
+            document.getElementById('name-card').style.display = 'none';
+            document.getElementById('rounds-container').classList.remove('hidden');
+        }
+
+        // Start Game (Rounds)
+        function startGame() {
+            totalRounds = parseInt(document.getElementById('rounds').value);
+            if (isNaN(totalRounds) || totalRounds < 3) {
+                document.getElementById('warning-card').style.display = 'block';
+                return;
+            }
+            document.getElementById('warning-card').style.display = 'none';
+            document.getElementById('rounds-container').classList.add('hidden');
+            document.getElementById('game').classList.remove('hidden');
+            updateRoundDisplay();
+        }
+
+        // Update Round Display
+        function updateRoundDisplay() {
+            document.getElementById('round-number').textContent = currentRound;
+            document.getElementById('player-score').textContent = playerScore;
+            document.getElementById('computer-score').textContent = computerScore;
+        }
+
+        // Get Computer's choice
+        function getComputerChoice() {
+            return options[Math.floor(Math.random() * options.length)];
+        }
+
+        // Roll the choices (Player & Computer)
+        function rollChoices(playerChoice) {
+            let rollDuration = 2000;
+            let rollInterval = 100;
+
+            const playerRoll = document.getElementById('player-img');
+            const computerRoll = document.getElementById('computer-img');
+
+            let playerInterval = setInterval(() => {
+                let randomChoice = options[Math.floor(Math.random() * options.length)];
+                playerRoll.src = images[randomChoice];
+            }, rollInterval);
+
+            let computerInterval = setInterval(() => {
+                let randomChoice = options[Math.floor(Math.random() * options.length)];
+                computerRoll.src = images[randomChoice];
+            }, rollInterval);
+
+            setTimeout(() => {
+                clearInterval(playerInterval);
+                clearInterval(computerInterval);
+
+                playerRoll.src = images[playerChoice];
+                let computerChoice = getComputerChoice();
+                computerRoll.src = images[computerChoice];
+
+                playRound(playerChoice, computerChoice);
+            }, rollDuration);
+        }
+
+        // Play the Round
+        function playRound(playerChoice, computerChoice) {
+            let resultMessage = '';
+            if (playerChoice === computerChoice) {
+                resultMessage = `${playerName}, it's a draw!`;
+            } else {
+                if (
+                    (playerChoice === 's' && computerChoice === 'w') ||
+                    (playerChoice === 'w' && computerChoice === 'g') ||
+                    (playerChoice === 'g' && computerChoice === 's')
+                ) {
+                    resultMessage = `${playerName}, you win this round!`;
+                    playerScore++;
+                } else {
+                    resultMessage = `Computer wins this round!`;
+                    computerScore++;
+                }
+            }
+
+            document.getElementById('result').textContent = resultMessage;
+            updateRoundDisplay();
+
+            if (currentRound >= totalRounds) {
+                endGame();
+            } else {
+                currentRound++;
+            }
+        }
+
+        // End the Game
+        function endGame() {
+            let celebrationMessage = '';
+            if (playerScore > computerScore) {
+                celebrationMessage = `${playerName} wins the game! Congratulations!`;
+            } else if (playerScore < computerScore) {
+                celebrationMessage = 'Computer wins the game!';
+            } else {
+                celebrationMessage = 'It\'s a tie!';
+            }
+
+            document.getElementById('celebration-text').textContent = celebrationMessage;
+            document.getElementById('game').classList.add('hidden');
+            document.getElementById('celebration-card').style.display = 'block';
+        }
+
+        // Rematch
+        function rematch() {
+            currentRound = 1;
+            playerScore = 0;
+            computerScore = 0;
+            document.getElementById('celebration-card').style.display = 'none';
+            document.getElementById('game').classList.remove('hidden');
+            updateRoundDisplay();
+        }
+
+        // New Game
+        function newGame() {
+            document.getElementById('celebration-card').style.display = 'none';
+            document.getElementById('name-card').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
